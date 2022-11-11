@@ -57,9 +57,19 @@ server <- function(input, output, session) {
   
   # writes the data to the google sheet
   observe({
-    sheet_append(ss = url,data = rand_work$data,sheet = "Activity Log")
-  }) %>% 
-    bindEvent(input$record)
+    ask_confirmation(inputId = "confirm1",
+                     title = "Finished with your workout? Confirm to save activity")
+  }) %>% bindEvent(input$record)  
+  observe({
+    if (isTRUE(input$confirm1)) {
+      sheet_append(ss = url,
+                   data = rand_work$data,
+                   sheet = "Activity Log")
+    } else{
+      F
+    }
+  }) %>%
+    bindEvent(input$confirm1)
   }
 # writes the data to the 
 shinyApp(ui, server)
