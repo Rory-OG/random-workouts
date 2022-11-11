@@ -1,0 +1,13 @@
+name: new_app
+title:
+username:
+account: pglbv1-rory-o0gallagher
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7599704
+bundleId: 6503358
+url: https://pglbv1-rory-o0gallagher.shinyapps.io/new_app/
+when: 1668183978.4369
+lastSyncTime: 1668183978.43693
+asMultiple: FALSE
+asStatic: FALSE
