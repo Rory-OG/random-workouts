@@ -18,7 +18,7 @@ ui <- navbarPage(
              actionButton("dw","Do this workout"),
              DT::dataTableOutput("random_workout")),
     tabPanel(title = "Activity Log",
-             DT::DTOutput("chosen_workout")
+             DT::dataTableOutput("chosen_workout")
              )
 ))
 # Define server logic
@@ -28,22 +28,23 @@ server <- function(input, output, session) {
     "https://docs.google.com/spreadsheets/d/1_2tUyBnXQ3zsnnSoyy9gzK-hOpmnWqgd9fsM9v6sUW8/edit#gid=0",
     sheet = "Exercise DB"
   )
-output$exercise_table = DT::renderDataTable(exercises)
-
-# Generates a random workout the user can review to pick a workout
-observeEvent(input$rw,
-             {
-               random_workout = exercises %>% group_by(`Body part`) %>% slice_sample(n=1)
-               output$random_workout = DT::renderDataTable(random_workout)
-             }
-)
+  output$exercise_table = DT::renderDT(exercises)
+  
+  # Generates a random workout the user can review to pick a workout
+  observe({
+    random_workout = exercises %>% group_by(`Body part`) %>% slice_sample(n = 1) %>% ungroup()
+    rand_work <<- random_workout %>% select(-`Body part`) %>% mutate(sets = "",reps="")
+    output$random_workout = DT::renderDT(random_workout)
+  }) %>%
+    bindEvent(input$rw) 
+    
+  
 # Copies the workout to activity log and gives input columns for resistance, sets and reps
-observeEvent(input$dw,
-             {
-              output$chosen_workout = DT::renderDT(random_workout,list(target='column',disable = list(columns=1)))
-              updateTabsetPanel(session = session, "tabs",selected = "Activity Log")
-             }
-)
-}
+  observe({
+    output$chosen_workout = DT::renderDT(rand_work,editable = list(target = 'column',disable = list(columns = 1)))
+    updateTabsetPanel(session = session,"tabs", selected = "Activity Log")
+  }) %>%
+    bindEvent(input$dw)
+  }
 
 shinyApp(ui, server)
